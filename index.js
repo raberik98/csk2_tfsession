@@ -6,8 +6,8 @@ function aws_vpc({  }) {
 }
 
 
-function module_networking({  }) {
-    
+function module_networking({ keys=[] }) {
+    let keys = keys.reduce()
     // logic
 
     return { _name: "this", arn: "" }

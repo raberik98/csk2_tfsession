@@ -2,3 +2,7 @@
 terraform.tfstate
 terraform.tfstate*
 terraform.tfvars
+state.config
+*.tfvars
+keys/*
+!keys/.gitkeep
