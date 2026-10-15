@@ -49,3 +49,13 @@ variable "instances" {
     error_message = "type must be either 'ec2' or 'bastion'."
   }
 }
+
+variable "eks_clusters" {
+  type = list(object({
+    name = string
+    subnets = list(string)
+    version = string
+
+    configure_kubectl = bool
+  }))
+}

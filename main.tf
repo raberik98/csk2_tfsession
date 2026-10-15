@@ -3,6 +3,10 @@ locals {
     for ec2 in var.instances:
       ec2.name => ec2
   }
+  eks_clusters = { for eks in var.eks_clusters :
+    eks.name => eks
+  }
+
 }
 
 module "keys" {
@@ -35,4 +39,17 @@ module "ec2" {
   subnet_id = module.networking.all_subnets[each.value.subnet_name].id
   vpc_id = module.networking.vpc.id
   tags = each.value.tags
+}
+
+
+module "eks" {
+  source = "./modules/eks"
+  for_each = local.eks_clusters
+
+  name = each.value.name
+  subnet_ids = [ for sn in module.networking.all_subnets_list : sn.val.id if contains(each.value.subnets, sn.name) ]
+  k8s_version = each.value.version
+  vpc_id = module.networking.vpc.id
+
+  configure_kubectl = each.value.configure_kubectl ? { aws_region = var.aws_region, aws_cli_profile = var.aws_profile } : {}
 }

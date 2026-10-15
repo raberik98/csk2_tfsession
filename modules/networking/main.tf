@@ -2,6 +2,7 @@ locals {
   subnets = { for sn in var.subnets : sn.name => sn }
   public_subnets = { for sn in var.subnets : sn.name => sn if sn.type == "public" }
   private_subnets = { for sn in var.subnets : sn.name => sn if sn.type == "private" }
+  all_subnets = merge(aws_subnet.public_subnets, aws_subnet.private_subnets)
 }
 
 resource "aws_vpc" "this" {
