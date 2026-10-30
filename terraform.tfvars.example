@@ -1,0 +1,84 @@
+aws_profile  = "cc-devops-csk2"
+project_name = "tfsession"
+
+
+keys = [
+  # {
+  #   name = "ek1"
+  #   key_path = "./keys/ek1.pub"
+  #   public_key_string = ""
+  # },
+  # {
+  #   name = "ek2"
+  #   key_path = ""
+  #   public_key_string = "Your key goes here."
+  # }
+]
+
+vpc = {
+  name       = "main"
+  cidr_block = "10.0.0.0/16"
+  tags = {}
+
+  NAT_subnet = "public-1"
+
+  subnets = [
+    {
+      name       = "public-1"
+      cidr_block = "10.0.0.0/24"
+      type       = "public"
+      az = "a"
+    }, 
+    {
+      name       = "public-2"
+      cidr_block = "10.0.1.0/24"
+      type       = "public"
+      az = "b"
+    },
+    {
+      name       = "public-3"
+      cidr_block = "10.0.2.0/24"
+      type       = "public"
+      az = "c"
+    },
+    {
+      name       = "private-1"
+      cidr_block = "10.0.3.0/24"
+      type       = "private"
+      az = "a"
+    },
+    {
+      name       = "private-2"
+      cidr_block = "10.0.4.0/24"
+      type       = "private"
+      az = "b"
+    },
+  ]
+}
+
+instances = [
+  # {
+  #   name = "ec21"
+  #   type = "ec2"
+  #   ami = "ami-0303e2e4a29f041a3"
+  #   instance_type = "t2.micro"
+  #   key_name = "ek1"
+  #   subnet_name = "public-1"
+  #   tags = {}
+  # }
+]
+eks_cluster_name = "csksession"
+eks_cluster = {
+  subnets = ["public-1", "public-2", "private-1", "public-3"]
+  version = "1.37"
+
+  node_groups = [
+    {
+      name = "nodes1",
+      subnets = ["private-1", "private-2"]
+      labels = {}
+    }
+  ]
+
+  configure_kubectl = true
+}

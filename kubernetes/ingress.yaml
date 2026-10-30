@@ -1,0 +1,54 @@
+apiVersion: elbv2.k8s.aws/v1beta1
+kind: IngressClassParams
+metadata:
+  name: alb-prod-params
+spec:
+  scheme: internet-facing
+  targetType: ip
+  # Optional: enforce a health check policy cluster-wide
+  healthCheck:
+    path: /
+    interval: 15
+    timeout: 5
+    healthyThreshold: 2
+    unhealthyThreshold: 3
+---
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: alb-prod
+spec:
+  controller: ingress.k8s.aws/alb
+  parameters:
+    apiGroup: elbv2.k8s.aws
+    kind: IngressClassParams
+    name: alb-prod-params
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  annotations:
+    # ALB listens on HTTP (and HTTPS if you add a certificate)
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    # Optional: override the cluster-wide health check path if this app needs a specific one
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    # Optional: accept 200 only (default is 200)
+    alb.ingress.kubernetes.io/success-codes: "200"
+spec:
+  ingressClassName: alb-prod
+  rules:
+    # - host: app.example.com   # replace with your domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-service
+                port:
+                  number: 80
+---
+# alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/abc123
+# alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+# alb.ingress.kubernetes.io/ssl-redirect: "443"

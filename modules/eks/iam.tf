@@ -60,3 +60,28 @@ resource "aws_iam_role_policy_attachment" "node_AmazonEC2ContainerRegistryReadOn
   role       = aws_iam_role.node.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
+
+
+data "aws_iam_policy_document" "vpc_cni_assume_role" {
+  statement {
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["pods.eks.amazonaws.com"]
+    }
+    actions = [
+      "sts:AssumeRole",
+      "sts:TagSession",
+    ]
+  }
+}
+
+resource "aws_iam_role" "vpc_cni_pod_identity" {
+  name               = "${var.name}-vpc-cni-pod-identity"
+  assume_role_policy = data.aws_iam_policy_document.vpc_cni_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "vpc_cni" {
+  role       = aws_iam_role.vpc_cni_pod_identity.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+}

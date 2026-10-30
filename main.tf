@@ -3,10 +3,6 @@ locals {
     for ec2 in var.instances:
       ec2.name => ec2
   }
-  eks_clusters = { for eks in var.eks_clusters :
-    eks.name => eks
-  }
-
 }
 
 module "keys" {
@@ -23,6 +19,8 @@ module "networking" {
   vpc_tags = var.vpc.tags
   NAT_subnet = var.vpc.NAT_subnet
   project_name = var.project_name
+  region = var.aws_region
+  eks_cluster_name = var.eks_cluster_name
 
   subnets = var.vpc.subnets
 }
@@ -44,12 +42,19 @@ module "ec2" {
 
 module "eks" {
   source = "./modules/eks"
-  for_each = local.eks_clusters
+  aws_profile = var.aws_profile
+  aws_region = var.aws_region
 
-  name = each.value.name
-  subnet_ids = [ for sn in module.networking.all_subnets_list : sn.val.id if contains(each.value.subnets, sn.name) ]
-  k8s_version = each.value.version
+  name = var.eks_cluster_name
+  subnet_ids = [ for sn in module.networking.all_subnets_list : sn.val.id if contains(var.eks_cluster.subnets, sn.name) ]
+  k8s_version = var.eks_cluster.version
   vpc_id = module.networking.vpc.id
 
-  configure_kubectl = each.value.configure_kubectl ? { aws_region = var.aws_region, aws_cli_profile = var.aws_profile } : {}
+  node_groups = [ for ng in var.eks_cluster.node_groups: {
+    name = ng.name
+    labels = ng.labels
+    subnet_ids = [ for sn in module.networking.all_subnets_list : sn.val.id if contains(ng.subnets, sn.name) ]
+  }]
+
+  configure_kubectl = var.eks_cluster.configure_kubectl ? { aws_region = var.aws_region, aws_cli_profile = var.aws_profile } : {}
 }

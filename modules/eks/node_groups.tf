@@ -14,23 +14,25 @@
 # WINDOWS_FULL_2022_x86_64	Windows Server 2022 Full
 # CUSTOM	Bring your own AMI (via launch template)
 
-# resource "aws_eks_node_group" "this" {
-#   cluster_name = aws_eks_cluster.this.name
-#   node_role_arn = aws_iam_role.node.arn
-#   subnet_ids = [  ]
+resource "aws_eks_node_group" "this" {
+  for_each = local.node_groups
 
-#   ami_type = "BOTTLEROCKET_x86_64"
-#   instance_types = [ "c5ad.xlarge" ]
-#   node_group_name = ""
-#   capacity_type = "ON_DEMAND"
-#   disk_size = 20
+  cluster_name = aws_eks_cluster.this.name
+  node_role_arn = aws_iam_role.node.arn
+  subnet_ids = each.value.subnet_ids
 
-#   scaling_config {
-#     desired_size = 3
-#     min_size = 2
-#     max_size = 15
-#   }
+  ami_type = "BOTTLEROCKET_x86_64"
+  instance_types = [ "c5ad.xlarge" ]
+  node_group_name = each.value.name
+  capacity_type = "ON_DEMAND"
+  disk_size = 20
 
-#   labels = {}
+  scaling_config {
+    desired_size = 3
+    min_size = 2
+    max_size = 15
+  }
 
-# }
+  labels = each.value.labels
+  
+}

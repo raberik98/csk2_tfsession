@@ -22,10 +22,13 @@ resource "aws_subnet" "public_subnets" {
   for_each = local.public_subnets
 
   cidr_block = each.value.cidr_block
+  availability_zone = "${var.region}${each.value.az}"
 
   tags = {
     Project = var.project_name
     Name    = "${var.project_name}-${each.value.type}-subnet-${each.key}"
+    "kubernetes.io/role/elb" = "1"
+    "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
   }
 }
 
@@ -34,10 +37,13 @@ resource "aws_subnet" "private_subnets" {
   for_each = local.private_subnets
 
   cidr_block = each.value.cidr_block
+  availability_zone = "${var.region}${each.value.az}"
 
   tags = {
     Project = var.project_name
     Name    = "${var.project_name}-${each.value.type}-subnet-${each.key}"
+    "kubernetes.io/role/internal-elb" = "1"
+    "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
   }
 }
 

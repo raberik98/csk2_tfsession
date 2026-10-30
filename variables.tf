@@ -10,13 +10,16 @@ variable "vpc" {
   type = object({
     name = string
     cidr_block = string
-    tags = map(string)
+    tags = optional(map(string), {})
     NAT_subnet = string
 
     subnets = list(object({
       name = string
       cidr_block = string
       type = string // public | private
+      az = string
+
+      tags = optional(map(string), {})
     }))
   })
 }
@@ -50,12 +53,20 @@ variable "instances" {
   }
 }
 
-variable "eks_clusters" {
-  type = list(object({
-    name = string
+
+variable "eks_cluster_name" { type = string }
+variable "eks_cluster" {
+  type = object({
     subnets = list(string)
     version = string
 
     configure_kubectl = bool
-  }))
+
+    node_groups = list(object({
+      name = string
+      subnets = list(string)
+
+      labels = optional(map(string), {})
+    }))
+  })
 }

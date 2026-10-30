@@ -14,11 +14,18 @@ variable "project_name" {
   type = string
 }
 
+variable "region" {
+  type = string
+}
+
+variable "eks_cluster_name" { type = string }
+
 variable "subnets" {
   type = list(object({
     name       = string
     cidr_block = string
     type       = string // public | private
+    az         = string
   }))
 }
 
