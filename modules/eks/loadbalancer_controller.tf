@@ -52,15 +52,15 @@ resource "helm_release" "lbc" {
         name  = "clusterName"
         value = aws_eks_cluster.this.name
     }, {
-      name  = "region"
-      value = var.aws_region
-    },{
+        name  = "region"
+        value = var.aws_region
+    }, {
         name  = "serviceAccount.name"
         value = "aws-load-balancer-controller"
     }, {
-      name  = "serviceAccount.create"
-      value = "true"
-    },{
+        name  = "serviceAccount.create"
+        value = "true"
+    }, {
         name  = "vpcId"
         value = var.vpc_id
     }]

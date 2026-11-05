@@ -1,0 +1,14 @@
+###
+GET http://localhost:3000/health
+
+###
+GET http://localhost:3000/users
+
+###
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+    "name": "Alan",
+    "email": "alan@example.com"
+}

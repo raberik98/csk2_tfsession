@@ -70,3 +70,14 @@ variable "eks_cluster" {
     }))
   })
 }
+
+variable "ecr_registries" {
+  description = "List of ECR repositories to create."
+  type = list(object({
+    name         = string                  # repo name == local Docker image name
+    image_tag    = optional(string, "")
+    image_path   = optional(string, "")    # empty → skip build, push existing local image
+    scan_on_push = optional(bool, true)
+  }))
+  default = []
+}

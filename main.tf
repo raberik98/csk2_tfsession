@@ -39,6 +39,19 @@ module "ec2" {
   tags = each.value.tags
 }
 
+module "ecr" {
+  source = "./modules/ecr"
+  for_each = { for r in var.ecr_registries : r.name => r } 
+
+  region          = var.aws_region
+  profile         = var.aws_profile
+  
+  repository_name = each.value.name
+  image_tag       = each.value.image_tag
+  image_path      = each.value.image_path
+  scan_on_push    = each.value.scan_on_push
+}
+
 
 module "eks" {
   source = "./modules/eks"
