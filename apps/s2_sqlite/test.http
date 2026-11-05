@@ -2,10 +2,10 @@
 GET http://localhost:3000/health
 
 ###
-GET http://localhost:3000/users
+GET http://k8s-sharedalb-e8b03fb868-1622693450.eu-west-1.elb.amazonaws.com/users
 
 ###
-POST http://localhost:3000/users
+POST http://k8s-sharedalb-e8b03fb868-1622693450.eu-west-1.elb.amazonaws.com/users
 Content-Type: application/json
 
 {

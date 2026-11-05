@@ -1,5 +1,5 @@
 resource "aws_iam_role" "cluster" {
-  name = "csksession"
+  name = "csksession_cluster_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -31,7 +31,7 @@ resource "aws_iam_role_policy_attachment" "cluster_AmazonEKSVPCResourceControlle
 
 
 resource "aws_iam_role" "node" {
-  name = "csksession_node"
+  name = "csksession_node_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"

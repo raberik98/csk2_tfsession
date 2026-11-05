@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: server2-sqlite
+  namespace: infra1
+  labels:
+    app: server2-sqlite
+spec:
+  serviceName: server2-sqlite
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server2-sqlite
+  template:
+    metadata:
+      labels:
+        app: server2-sqlite
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: server2-sqlite
+          image: 362099375729.dkr.ecr.eu-west-1.amazonaws.com/server2_sqlite:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "3000"
+            - name: DB_PATH
+              value: "/data/app.db"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          volumeMounts:
+            - name: sqlite-data
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: sqlite-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: ebs-gp3
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: server2-sqlite
+  namespace: infra1
+  labels:
+    app: server2-sqlite
+spec:
+  clusterIP: None
+  selector:
+    app: server2-sqlite
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+      protocol: TCP
